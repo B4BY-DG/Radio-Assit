@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rad-Assist AI Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .response-container { white-space: pre-wrap; word-wrap: break-word; }
+        .gemini-tool-card {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .gemini-tool-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-blue-600 dark:text-blue-400 mb-2">Radiology-Assist AI</h1>
+            <p class="text-slate-500 dark:text-slate-400">Advanced AI Support for Radiology Professionals</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left: Main Interaction -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                    <label class="block text-sm font-medium mb-2 text-slate-600 dark:text-slate-400">Ask a clinical question</label>
+                    <textarea id="userInput" class="w-full h-32 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition resize-none" placeholder="ဥပမာ- 'MRI safety scan မှာ metal implant တွေအတွက် ဘာတွေသတိထားရမလဲ?'"></textarea>
+                    <button id="askButton" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+                        <span>မေးမြန်းမည်</span>
+                    </button>
+                </div>
+
+                <!-- Response Section -->
+                <div id="responseSection" class="hidden bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                    <div class="flex items-center justify-between mb-4 border-b pb-4 border-slate-100 dark:border-slate-700">
+                        <h2 class="text-lg font-bold flex items-center gap-2">
+                            <span class="text-blue-500">✦</span> Radiology-Assist Intelligence
+                        </h2>
+                        <div id="loadingIndicator" class="hidden flex items-center gap-2 text-blue-500 text-sm font-medium">
+                            <div class="w-2 h-2 rounded-full bg-current animate-bounce"></div>
+                            <div class="w-2 h-2 rounded-full bg-current animate-bounce [animation-delay:-.3s]"></div>
+                            <div class="w-2 h-2 rounded-full bg-current animate-bounce [animation-delay:-.5s]"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="responseContainer" class="response-container text-slate-700 dark:text-slate-300 leading-relaxed min-h-[100px]"></div>
+                    
+                    <div id="followUpActions" class="mt-6 flex flex-wrap gap-2 hidden">
+                        <button id="simplifyBtn" class="bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-200 py-2 px-4 rounded-lg text-sm font-semibold transition-colors">✨ ပိုမိုရှင်းလင်းအောင်လုပ်ပါ</button>
+                        <button id="suggestBtn" class="bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-200 py-2 px-4 rounded-lg text-sm font-semibold transition-colors">✨ ဆက်စပ်မေးခွန်းများ</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Clinical Toolkit -->
+            <div class="space-y-4">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 px-2">✨ Clinical Toolkit</h3>
+                
+                <div onclick="toolAction('protocol')" class="gemini-tool-card bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded-lg flex items-center justify-center mb-3 text-xl">📋</div>
+                    <h4 class="font-bold text-sm mb-1">Protocol Builder</h4>
+                    <p class="text-xs text-slate-500">Generate exam parameters.</p>
+                </div>
+
+                <div onclick="toolAction('patient')" class="gemini-tool-card bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-lg flex items-center justify-center mb-3 text-xl">💬</div>
+                    <h4 class="font-bold text-sm mb-1">Patient Coach</h4>
+                    <p class="text-xs text-slate-500">scripts for explaining procedures.</p>
+                </div>
+
+                <div onclick="toolAction('troubleshoot')" class="gemini-tool-card bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 text-amber-600 rounded-lg flex items-center justify-center mb-3 text-xl">🛠️</div>
+                    <h4 class="font-bold text-sm mb-1">Troubleshooter</h4>
+                    <p class="text-xs text-slate-500">Fix image artifacts & errors.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Toast -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-slate-800 text-white px-4 py-2 rounded-lg shadow-lg hidden transform translate-y-10 transition-transform"></div>
+
+    <script>
+        const API_KEY = ""; // Environment provided
+        const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
+        
+        // DOM Elements
+        const askButton = document.getElementById('askButton');
+        const userInput = document.getElementById('userInput');
+        const responseSection = document.getElementById('responseSection');
+        const responseContainer = document.getElementById('responseContainer');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const followUpActions = document.getElementById('followUpActions');
+        const simplifyBtn = document.getElementById('simplifyBtn');
+        const suggestBtn = document.getElementById('suggestBtn');
+        const toast = document.getElementById('toast');
+
+        let lastQuery = '';
+        let lastResponse = '';
+
+        // Exponential Backoff Fetch
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            let delay = 1000;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return await response.json();
+                    if (response.status !== 429 && response.status < 500) break;
+                } catch (e) {}
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2;
+            }
+            throw new Error("Failed to connect to AI services after multiple attempts.");
+        }
+
+        async function callGemini(prompt) {
+            loadingIndicator.classList.remove('hidden');
+            responseSection.classList.remove('hidden');
+            followUpActions.classList.add('hidden');
+            
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: "You are Rad-Assist, a professional AI for radiographers. Answer in Burmese unless English technical terms are necessary. Prioritize patient safety and ALARA." }] }
+            };
+
+            try {
+                const data = await fetchWithRetry(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
+            } catch (error) {
+                showToast(error.message);
+                return "Error fetching data.";
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        function showToast(msg) {
+            toast.innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('translate-y-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('translate-y-0');
+            }, 3000);
+        }
+
+        async function handleAsk() {
+            const query = userInput.value.trim();
+            if (!query) return;
+            lastQuery = query;
+            const res = await callGemini(query);
+            lastResponse = res;
+            responseContainer.innerText = res;
+            followUpActions.classList.remove('hidden');
+        }
+
+        async function toolAction(type) {
+            const query = userInput.value.trim();
+            if (!query) {
+                showToast("Please enter an exam or procedure name first!");
+                return;
+            }
+
+            let prompt = "";
+            switch(type) {
+                case 'protocol':
+                    prompt = `Generate a standard clinical protocol for '${query}'. Include positioning, technical factors (kVp, mAs), and breathing instructions in Burmese.`;
+                    break;
+                case 'patient':
+                    prompt = `Create a polite script in Burmese for explaining '${query}' to a nervous patient. Address common fears.`;
+                    break;
+                case 'troubleshoot':
+                    prompt = `Provide a troubleshooting guide for '${query}'. Focus on preventing common artifacts and technical errors. Answer in Burmese.`;
+                    break;
+            }
+            
+            const res = await callGemini(prompt);
+            lastResponse = res;
+            responseContainer.innerText = res;
+            followUpActions.classList.remove('hidden');
+        }
+
+        simplifyBtn.onclick = async () => {
+            const res = await callGemini(`Simplify this radiology explanation for a layperson: ${lastResponse}`);
+            responseContainer.innerText = res;
+        };
+
+        suggestBtn.onclick = async () => {
+            const res = await callGemini(`Based on the previous topic (${lastQuery}), suggest 3 interesting follow-up clinical questions in Burmese.`);
+            responseContainer.innerHTML += `\n\n---\n**✨ Recommended Questions:**\n${res}`;
+        };
+
+        askButton.onclick = handleAsk;
+        userInput.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAsk(); }});
+    </script>
+</body>
+</html>
